@@ -76,9 +76,11 @@ def move(direction: str):
                     # de la ligne du dessus.
                     # On va ensuite réinsérer le résultat de la collision
                     # dans les cases.
-                    grid[i][j], grid[i-1][j], finish = collision(
+                    grid[i][j], grid[i-1][j], verif = collision(
                         caseImmobile=grid[i][j],
                         caseMobile=grid[i-1][j])
+                    if verif is True:
+                        finish = True
     if direction == "up":
         for i in range(0, 3):
             while finish is not True:
@@ -88,9 +90,11 @@ def move(direction: str):
                     # de la ligne du dessous.
                     # On va ensuite réinsérer le résultat de la collision
                     # dans les cases.
-                    grid[i][j], grid[i+1][j], finish = collision(
+                    grid[i][j], grid[i+1][j], verif = collision(
                         caseImmobile=grid[i][j],
                         caseMobile=grid[i+1][j])
+                    if verif is True:
+                        finish = True
     if direction == "right":
         for i in range(0, 4):
             while finish is not True:
@@ -100,9 +104,11 @@ def move(direction: str):
                     # de la colonne de gauche.
                     # On va ensuite réinsérer le résultat de la collision
                     # dans les cases.
-                    grid[i][j], grid[i][j-1], finish = collision(
+                    grid[i][j], grid[i][j-1], verif = collision(
                         caseImmobile=grid[i][j],
                         caseMobile=grid[i][j-1])
+                    if verif is True:
+                        finish = True
     if direction == "left":
         for i in range(0, 4):
             while finish is not True:
@@ -112,12 +118,14 @@ def move(direction: str):
                     # de la colonne de droite.
                     # On va ensuite réinsérer le résultat de la collision
                     # dans les cases.
-                    grid[i][j], grid[i][j+1], finish = collision(
+                    grid[i][j], grid[i][j+1], verif = collision(
                         caseImmobile=grid[i][j],
                         caseMobile=grid[i][j+1])
-    affichage_score()
+                    if verif is True:
+                        finish = True
     lose = loseDetect(grid, gridOld)
     matrice = grid
+    affichage()
     return lose
 
 
@@ -246,7 +254,10 @@ def creer_case():
             coord = cMatrice.coords(case)
             x = (coord[0] + coord[2]) // 2
             y = (coord[1] + coord[3]) // 2
-            guiText.append(cMatrice.create_text(x, y, text="1", font=("E", 25)))
+            guiText.append(cMatrice.create_text(
+                x, y,
+                text="1",
+                font=("E", 25)))
             guiCase.append(case)
     return None
 
@@ -278,6 +289,7 @@ def affichage():
                 )
                 afffiche_nombre(compteurCase, str(case))
             compteurCase += 1
+    affiche_score()
     return None
 
 
@@ -291,6 +303,8 @@ def afffiche_nombre(numerocase: int, valeurCase: str):
     return None
 
 
+def clic(event):
+    move("up")
 ###############################################################################
 # Initialisation du jeu
 def lancement():
@@ -305,5 +319,6 @@ def lancement():
 
 ###############################################################################
 # Lancement du jeu
+cMatrice.bind("<Button-1>", clic)
 lancement()
 racine.mainloop()
