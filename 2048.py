@@ -303,13 +303,25 @@ def afffiche_nombre(numerocase: int, valeurCase: str):
 
 
 def haut(event):
-    pass
-    
+    move("up")
 
-bfleche_haut = racine.bind("<KeyPress-Up>", move("up"))
-bfleche_bas = racine.bind("<KeyPress-Down>", move("down"))
-bfleche_gauche = racine.bind("<KeyPress-Left>", move("left"))
-bfleche_droite = racine.bind("<KeyPress-Right>", move("right"))
+
+def bas(event):
+    move("down")
+
+
+def gauche(event):
+    move("left")
+
+
+def droite(event):
+    move("right")
+
+
+racine.bind("<KeyPress-Up>", haut)
+racine.bind("<KeyPress-Down>", bas)
+racine.bind("<KeyPress-Left>", gauche)
+racine.bind("<KeyPress-Right>", droite)
 
 ###############################################################################
 # Initialisation du jeu
@@ -327,6 +339,5 @@ def lancement():
 
 ###############################################################################
 # Lancement du jeu
-cMatrice.bind("<Button-1>", clic)
 lancement()
 racine.mainloop()
