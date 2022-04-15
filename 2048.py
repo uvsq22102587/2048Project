@@ -15,9 +15,7 @@ matrice = [0*4]*4
 
 
 def datacreate():
-    """
-    Fonction qui créée une matrice de 4x4.
-    """
+    """Fonction qui créée une matrice de 4x4."""
     global data
     data = []
     for i in range(4):
@@ -27,7 +25,8 @@ def datacreate():
 
 def initialisation():
     """"
-    Fonction qui ajoute 2 dans deux cases de la matrice au hasard au début du jeu.
+    Fonction qui ajoute 2 dans deux cases de la matrice au hasard
+    au début du jeu.
     """
     global matrice
     matrice = datacreate()
@@ -303,10 +302,19 @@ def afffiche_nombre(numerocase: int, valeurCase: str):
     return None
 
 
-def clic(event):
-    move("up")
+def haut(event):
+    pass
+    
+
+bfleche_haut = racine.bind("<KeyPress-Up>", move("up"))
+bfleche_bas = racine.bind("<KeyPress-Down>", move("down"))
+bfleche_gauche = racine.bind("<KeyPress-Left>", move("left"))
+bfleche_droite = racine.bind("<KeyPress-Right>", move("right"))
+
 ###############################################################################
 # Initialisation du jeu
+
+
 def lancement():
     """
     Fonction qui lance le jeu.
