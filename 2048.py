@@ -9,9 +9,9 @@ import random as rdm
 couleur = open("couleur.txt", "r")
 couleur = couleur.readline()
 couleur = couleur.split()
+matrice = [0*4]*4
 ###############################################################################
 # Définition des fonctions gestion données
-
 
 
 def datacreate():
@@ -144,9 +144,35 @@ def save():
     """
     global matrice
     fichier = open("save.txt", "w")
+    compteur = 0
     for elem in matrice:
-        fichier.write(str(elem) + "\n")
+        for case in elem:
+            fichier.write(str(case) + " ")
+            compteur += 1
+            if compteur == 4:
+                fichier.write("\n")
+                compteur = 0
     fichier.close()
+    return None
+
+
+def charger():
+    """
+    Fonction qui charge la grille sauvegarder dans le fichier texte save.txt.
+    """
+    global matrice
+    matrice = []
+    fichier = open("save.txt", "r")
+    config = fichier.readlines()
+    for ligne in config:
+        ligne = ligne.split()
+        ligne = list(ligne)
+        for i in range(0, 4):
+            ligne[i] = int(ligne[i])
+        matrice.append(ligne)
+    fichier.close()
+    affichage()
+    return None
 
 
 def restart():
@@ -157,6 +183,7 @@ def restart():
     matrice = datacreate()
     initialisation()
     affichage()
+    return None
 
 def score():
     """
@@ -191,6 +218,9 @@ bRestart.grid(column=0, row=1)
 bSave = tk.Button(text="Sauvegarder", command=save)
 bSave.grid(column=0, row=2)
 
+bCharger = tk.Button(text="Charger Config", command=charger)
+bCharger.grid(column=0, row=3)
+
 
 ###############################################################################
 # Définition des fonctions graphiques
@@ -211,9 +241,9 @@ def creer_case():
             coord = cMatrice.coords(case)
             x = (coord[0] + coord[2]) // 2
             y = (coord[1] + coord[3]) // 2
-            guiText.append(cMatrice.create_text(x, y, text=""))
+            guiText.append(cMatrice.create_text(x, y, text="1"))
             guiCase.append(case)
-            
+    return None
 
 
 def affichage():
@@ -222,29 +252,38 @@ def affichage():
     matrice
     """
     global guiCase, matrice, guiText
-    print(matrice)
     compteurCase = 0
     for elem in matrice:
         for case in elem:
             compteur = 0
-            while case >= 2:
-                case = case // 2
+            case2 = 0
+            while case2 >= 2:
+                case2 = case2 // 2
                 compteur += 1
             if case == 0:
                 cMatrice.itemconfig(
                     guiCase[compteurCase],
                     fill="white",
                 )
+                afffiche_nombre(compteurCase, "")
             else:
                 cMatrice.itemconfig(
                     guiCase[compteurCase],
                     fill=couleur[compteur]
                 )
+                afffiche_nombre(compteurCase, str(case))
             compteurCase += 1
-            
+    return None
 
-def affichage_score():
-    lScore.config(text = "Score : " + str(score()))
+
+def afffiche_nombre(numerocase: int, valeurCase: str):
+    """
+    Fonction qui configure le label associé à la case
+    avec le nombre stocké dans matrice.
+    """
+    global guiText
+    cMatrice.itemconfig(guiText[numerocase], text=valeurCase)
+    return None
 
 
 ###############################################################################
@@ -256,6 +295,7 @@ def lancement():
     initialisation()
     creer_case()
     affichage()
+    return None
 
 
 ###############################################################################
