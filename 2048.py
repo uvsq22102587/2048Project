@@ -115,6 +115,7 @@ def move(direction: str):
                     grid[i][j], grid[i][j+1], finish = collision(
                         caseImmobile=grid[i][j],
                         caseMobile=grid[i][j+1])
+    affichage_score()
     lose = loseDetect(grid, gridOld)
     matrice = grid
     return lose
@@ -185,6 +186,23 @@ def restart():
     return None
 
 
+def score():
+    """
+    Fonction qui calcule le score du joueur.
+    """
+    global matrice
+    score = 0
+    for i in range(4):
+        for j in range(4):
+            score += matrice[i][j]
+    score = str(score)
+    return score
+
+
+def affiche_score():
+    lScore.config(text="Score: " + score())
+
+
 ###############################################################################
 # Création de l'interface graphique
 racine = tk.Tk()
@@ -195,6 +213,9 @@ cMatrice.grid(row=1, column=1, columnspan=4)
 
 lTitreJeu = tk.Label(text="2048", font=("Arial", 21))
 lTitreJeu.grid(row=0, column=1)
+
+lScore = tk.Label(text="Score : 0", font=("Arial", 15))
+lScore.grid(row=0, column=2)
 
 bRestart = tk.Button(text="Recommencer", command=restart)
 bRestart.grid(column=0, row=1)
