@@ -9,47 +9,36 @@ import random as rdm
 couleur = open("couleur.txt", "r")
 couleur = couleur.readline()
 couleur = couleur.split()
-print(couleur)
 ###############################################################################
-# Définition des fonctions
+# Définition des fonctions gestion données
 
-
-def getColor(case: int):
-    """
-    Fonction qui donne la couleur de la case en fonction de sa valeur.
-    Elle utilise la variable couleur qui contient les couleurs, contenues
-    dans le fichier couleur.txt.
-    """
-    compteur = 0
-    while case != 2:
-        case = case // 2
-        compteur += 1
-    return couleur[compteur]
 
 
 def datacreate():
     """
     Fonction qui créée une matrice de 4x4.
     """
-    grid = []
+    global data
+    data = []
     for i in range(4):
-        grid.append([0, 0, 0, 0])
-    return grid
+        data.append([0, 0, 0, 0])
+    return data
 
 
 def initialisation():
     """"
     Fonction qui ajoute 2 dans deux cases de la matrice au hasard au début du jeu.
     """
-    grid = datacreate()
+    global matrice
+    matrice = datacreate()
     compteur = 0
     while compteur < 2:
+        compteur = 0
         i = rdm.randint(0, 3)
         j = rdm.randint(0, 3)
-        grid[i][j] = 2
-        for elem in grid:
+        matrice[i][j] = 2
+        for elem in matrice:
             compteur += elem.count(2)
-    return grid
 
 
 def loseDetect(gridNouveau: list, gridAncien: list):
@@ -69,14 +58,14 @@ def loseDetect(gridNouveau: list, gridAncien: list):
     return True
 
 
-def move(grid: list, direction: str):
+def move(direction: str):
     """
     Fonction qui fait le déplacement de la grille, elle sauvegarde d'abord
     la configuration précédente pour pouvoir vérifier si le joueur a perdu.
-    On utilise aussi cette fonction pour obtenir la matrice sans utiliser de
-    variable globale avec condition de direction "save".
     """
-    gridOld = grid
+    global matrice
+    gridOld = matrice
+    grid = matrice
     finish = False
     if direction == "down":
         for i in range(3, 0, -1):
@@ -127,7 +116,8 @@ def move(grid: list, direction: str):
                         caseImmobile=grid[i][j],
                         caseMobile=grid[i][j+1])
     lose = loseDetect(grid, gridOld)
-    return grid, lose
+    matrice = grid
+    return lose
 
 
 def collision(caseImmobile, caseMobile):
@@ -148,16 +138,107 @@ def collision(caseImmobile, caseMobile):
 
 
 def save():
+    """
+    Fonction qui sauvegarde la grille dans un fichier texte.
+    """
+    global matrice
+    fichier = open("save.txt", "w")
+    for elem in matrice:
+        fichier.write(str(elem) + "\n")
+    fichier.close()
+
+
+def restart():
+    """
+    Fonction qui permet de recommencer le jeu.
+    """
+    global matrice
+    matrice = datacreate()
+    initialisation()
+    affichage()
 
 
 ###############################################################################
 # Création de l'interface graphique
 racine = tk.Tk()
+racine.title("2048")
 
 cMatrice = tk.Canvas(racine, width=500, height=500)
+cMatrice.grid(row=1, column=1, columnspan=4)
 
-lTitreJeu = tk.Label(text="2048", color="Black")
+lTitreJeu = tk.Label(text="2048", font=("Arial", 21))
+lTitreJeu.grid(row=0, column=1)
 
 bRestart = tk.Button(text="Recommencer", command=restart)
+bRestart.grid(column=0, row=1)
 
-bSave = tk.Button(text="Sauvegarder", command=lambda: save(grid))
+bSave = tk.Button(text="Sauvegarder", command=save)
+bSave.grid(column=0, row=2)
+
+
+###############################################################################
+# Définition des fonctions graphiques
+def creer_case():
+    """
+    Fonction qui crée les cases de la grille.
+    """
+    global guiCase, guiText
+    guiCase, guiText = [], []
+    for i in range(4):
+        for j in range(4):
+            case = cMatrice.create_rectangle(
+                (j*100+5, i*100+5),
+                (j*100+100, i*100+100),
+                fill="white",
+                outline="grey"
+                )
+            coord = cMatrice.coords(case)
+            x = (coord[0] + coord[2]) // 2
+            y = (coord[1] + coord[3]) // 2
+            guiText.append(cMatrice.create_text(x, y, text=""))
+            guiCase.append(case)
+            
+
+
+def affichage():
+    """
+    Fonction qui actualise les carrées en fonction des données stockées dans
+    matrice
+    """
+    global guiCase, matrice, guiText
+    print(matrice)
+    compteurCase = 0
+    for elem in matrice:
+        for case in elem:
+            compteur = 0
+            while case >= 2:
+                case = case // 2
+                compteur += 1
+            if case == 0:
+                cMatrice.itemconfig(
+                    guiCase[compteurCase],
+                    fill="white",
+                )
+            else:
+                cMatrice.itemconfig(
+                    guiCase[compteurCase],
+                    fill=couleur[compteur]
+                )
+            compteurCase += 1
+
+
+###############################################################################
+# Initialisation du jeu
+def lancement():
+    """
+    Fonction qui lance le jeu.
+    """
+    initialisation()
+    creer_case()
+    affichage()
+
+
+###############################################################################
+# Lancement du jeu
+lancement()
+racine.mainloop()
