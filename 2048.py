@@ -13,11 +13,8 @@ couleur = couleur.split()
 # Définition des fonctions gestion données
 
 
-
 def datacreate():
-    """
-    Fonction qui créée une matrice de 4x4.
-    """
+    """Fonction qui créée une matrice de 4x4."""
     global data
     data = []
     for i in range(4):
@@ -27,7 +24,8 @@ def datacreate():
 
 def initialisation():
     """"
-    Fonction qui ajoute 2 dans deux cases de la matrice au hasard au début du jeu.
+    Fonction qui ajoute 2 dans deux cases de la matrice au hasard
+    au début du jeu.
     """
     global matrice
     matrice = datacreate()
@@ -197,7 +195,6 @@ def creer_case():
             y = (coord[1] + coord[3]) // 2
             guiText.append(cMatrice.create_text(x, y, text=""))
             guiCase.append(case)
-            
 
 
 def affichage():
@@ -227,8 +224,19 @@ def affichage():
             compteurCase += 1
 
 
+def haut(event):
+    pass
+    
+
+bfleche_haut = racine.bind("<KeyPress-Up>", move("up"))
+bfleche_bas = racine.bind("<KeyPress-Down>", move("down"))
+bfleche_gauche = racine.bind("<KeyPress-Left>", move("left"))
+bfleche_droite = racine.bind("<KeyPress-Right>", move("right"))
+
 ###############################################################################
 # Initialisation du jeu
+
+
 def lancement():
     """
     Fonction qui lance le jeu.
