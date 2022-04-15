@@ -185,6 +185,7 @@ def restart():
     affichage()
     return None
 
+
 def score():
     """
     Fonction qui calcule le score du joueur.
@@ -196,6 +197,10 @@ def score():
             score += matrice[i][j]
     score = str(score)
     return score
+
+
+def affiche_score():
+    lScore.config(text="Score: " + score())
 
 
 ###############################################################################
