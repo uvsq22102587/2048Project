@@ -225,7 +225,7 @@ def creer_case():
             coord = cMatrice.coords(case)
             x = (coord[0] + coord[2]) // 2
             y = (coord[1] + coord[3]) // 2
-            guiText.append(cMatrice.create_text(x, y, text="1"))
+            guiText.append(cMatrice.create_text(x, y, text="1", font=("E", 25)))
             guiCase.append(case)
     return None
 
