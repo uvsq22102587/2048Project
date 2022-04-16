@@ -47,9 +47,17 @@ def nouvelCase():
     nombre0 = compte0()
     if nombre0 == 0:
         return None
+    elif nombre0 == 16:
+        x = rdm.randint(0, 3)
+        y = rdm.randint(0, 3)
+        matrice[y][x] = rdm.choice([2, 2, 2, 2, 2, 2, 2, 2, 2, 4])
     else:
         x = rdm.randint(0, 3)
         y = rdm.randint(0, 3)
+        if matrice[y][x] != 0:
+            while matrice[y][x] != 0:
+                x = rdm.randint(0, 3)
+                y = rdm.randint(0, 3)
         matrice[y][x] = rdm.choice([2, 2, 2, 2, 2, 2, 2, 2, 2, 4])
     print(matrice)
     return None
@@ -98,67 +106,58 @@ def move(direction: str):
     grid = matrice
     if direction == "down":
         for j in range(0, 4):
-            for i in range(3, 0, -1):
-                # On apelle la fonction collision avec comme case immobile
-                # la case de la ligne du dessous et la case mobile la case
-                # de la ligne du dessus.
-                # On va ensuite réinsérer le résultat de la collision
-                # dans les cases.
-                grid[i][j], grid[i-1][j] = collision(
-                    caseImmobile=grid[i][j],
-                    caseMobile=grid[i-1][j])
+            colonne = [grid[i][j] for i in range(0, 4)]
+            colonne = collision(colonne)
+            for i in range(0, 4):
+                grid[i][j] = colonne[i]
     if direction == "up":
         for j in range(0, 4):
-            for i in range(0, 3):
-                # On appelle la fonction collision avec comme case immobile
-                # la case de la ligne du dessus et la case mobile la case
-                # de la ligne du dessous.
-                # On va ensuite réinsérer le résultat de la collision
-                # dans les cases.
-                grid[i][j], grid[i+1][j] = collision(
-                    caseImmobile=grid[i][j],
-                    caseMobile=grid[i+1][j])
+            colonne = [grid[i][j] for i in range(0, 4)]
+            colonne.reverse()
+            colonne = collision(colonne)
+            colonne.reverse()
+            for i in range(0, 4):
+                grid[i][j] = colonne[i]
     if direction == "right":
         for i in range(0, 4):
-            for j in range(3, 0, -1):
-                # On appelle la fonction collision avec comme case immobile
-                # la case de la colonne de droite et la case mobile la case
-                # de la colonne de gauche.
-                # On va ensuite réinsérer le résultat de la collision
-                # dans les cases.
-                grid[i][j], grid[i][j-1] = collision(
-                    caseImmobile=grid[i][j],
-                    caseMobile=grid[i][j-1])
+            ligne = [grid[i][j] for j in range(0, 4)]
+            ligne = collision(ligne)
+            for j in range(0, 4):
+                grid[i][j] = ligne[j]
     if direction == "left":
         for i in range(0, 4):
-            for j in range(0, 3):
-                # On appelle la fonction collision avec comme case immobile
-                # la case de la colonne de gauche et la case mobile la case
-                # de la colonne de droite.
-                # On va ensuite réinsérer le résultat de la collision
-                # dans les cases.
-                grid[i][j], grid[i][j+1] = collision(
-                    caseImmobile=grid[i][j],
-                    caseMobile=grid[i][j+1])
+            ligne = [grid[i][j] for j in range(0, 4)]
+            ligne.reverse()
+            ligne = collision(ligne)
+            ligne.reverse()
+            for j in range(0, 4):
+                grid[i][j] = ligne[j]
     lose = loseDetect(grid, gridOld)
     matrice = grid
+    affichage()
     nouvelCase()
     affichage()
     return lose
 
 
-def collision(caseImmobile, caseMobile):
+def collision(liste):
     """
-    Fonction qui fait la cohésion de deux case si possible.
+    Fonction qui permet de faire la collision des cases dans une ligne ou
+    une colonne.
     """
     print("Collision")
-    if caseImmobile == caseMobile:
-        caseImmobile += caseMobile
-        caseMobile = 0
-    elif caseImmobile == 0 and caseMobile != 0:
-        caseImmobile = caseMobile
-        caseMobile = 0
-    return caseImmobile, caseMobile
+    liste = [elem for elem in liste if elem != 0]
+    while len(liste) < 4:
+        liste.insert(0, 0)
+    for i in range(len(liste) - 1, 0, -1):
+        if liste[i] == liste[i - 1]:
+            liste[i] = liste[i] * 2
+            liste[i - 1] = 0
+    liste = [elem for elem in liste if elem != 0]
+    while len(liste) < 4:
+        liste.insert(0, 0)
+    return liste
+
 
 
 def save():
