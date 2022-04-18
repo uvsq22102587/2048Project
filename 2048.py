@@ -9,37 +9,72 @@ import random as rdm
 couleur = open("couleur.txt", "r")
 couleur = couleur.readline()
 couleur = couleur.split()
-matrice = [0*4]*4
+score = 0
 ###############################################################################
 # Définition des fonctions gestion données
 
 
-def datacreate():
+def matriceCreate():
     """
-    Fonction qui créée une matrice de 4x4.
+    Fonction qui crée la matrice de jeu de 4x4.
     """
-    global data
-    data = []
-    for i in range(4):
-        data.append([0, 0, 0, 0])
-    return data
+    global matrice
+    matrice = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    return None
 
 
 def initialisation():
     """"
-    Fonction qui ajoute 2 dans deux cases de la matrice au hasard
+    Fonction qui ajoute 2 ou 4 dans deux cases de la matrice au hasard
     au début du jeu.
     """
+    print("Initialisation")
     global matrice
-    matrice = datacreate()
-    compteur = 0
-    while compteur < 2:
-        compteur = 0
-        i = rdm.randint(0, 3)
-        j = rdm.randint(0, 3)
-        matrice[i][j] = 2
-        for elem in matrice:
-            compteur += elem.count(2)
+    matriceCreate()
+    nombre0 = compte0()
+    while nombre0 > 14:
+        nouvelCase()
+        nombre0 = compte0()
+    return None
+
+
+def nouvelCase():
+    """
+    Fonction qui ajoute une case de valeur 2 ou 4 au hasard dans une case vide.
+    """
+    print("Nouvel case")
+    global matrice
+    nombre0 = compte0()
+    if nombre0 == 0:
+        return None
+    elif nombre0 == 16:
+        x = rdm.randint(0, 3)
+        y = rdm.randint(0, 3)
+        matrice[y][x] = rdm.choice([2, 2, 2, 2, 2, 2, 2, 2, 2, 4])
+    else:
+        x = rdm.randint(0, 3)
+        y = rdm.randint(0, 3)
+        if matrice[y][x] != 0:
+            while matrice[y][x] != 0:
+                x = rdm.randint(0, 3)
+                y = rdm.randint(0, 3)
+        matrice[y][x] = rdm.choice([2, 2, 2, 2, 2, 2, 2, 2, 2, 4])
+    print(matrice)
+    return None
+
+
+def compte0():
+    """
+    Fonction qui compte le nombre de cases vides dans la grille.
+    """
+    print("Compte 0")
+    global matrice
+    nombre0 = 0
+    for i in range(0, len(matrice)):
+        for j in range(0, len(matrice[i])):
+            if matrice[i][j] == 0:
+                nombre0 += 1
+    return nombre0
 
 
 def loseDetect(gridNouveau: list, gridAncien: list):
@@ -49,6 +84,7 @@ def loseDetect(gridNouveau: list, gridAncien: list):
     C'est à dire que la grille avant le mouvement est la même
     que la grille après le mouvement.
     """
+    print("Lose detect")
     for elem in gridNouveau:
         if elem.count(0) != 0:
             return False
@@ -64,93 +100,71 @@ def move(direction: str):
     Fonction qui fait le déplacement de la grille, elle sauvegarde d'abord
     la configuration précédente pour pouvoir vérifier si le joueur a perdu.
     """
+    print("Move")
     global matrice
     gridOld = matrice
     grid = matrice
-    finish = False
     if direction == "down":
-        for i in range(3, 0, -1):
-            while finish is not True:
-                for j in range(0, 4):
-                    # On apelle la fonction collision avec comme case immobile
-                    # la case de la ligne du dessous et la case mobile la case
-                    # de la ligne du dessus.
-                    # On va ensuite réinsérer le résultat de la collision
-                    # dans les cases.
-                    grid[i][j], grid[i-1][j], verif = collision(
-                        caseImmobile=grid[i][j],
-                        caseMobile=grid[i-1][j])
-                    if verif is True:
-                        finish = True
+        for j in range(0, 4):
+            colonne = [grid[i][j] for i in range(0, 4)]
+            colonne = collision(colonne)
+            for i in range(0, 4):
+                grid[i][j] = colonne[i]
     if direction == "up":
-        for i in range(0, 3):
-            while finish is not True:
-                for j in range(0, 4):
-                    # On appelle la fonction collision avec comme case immobile
-                    # la case de la ligne du dessus et la case mobile la case
-                    # de la ligne du dessous.
-                    # On va ensuite réinsérer le résultat de la collision
-                    # dans les cases.
-                    grid[i][j], grid[i+1][j], verif = collision(
-                        caseImmobile=grid[i][j],
-                        caseMobile=grid[i+1][j])
-                    if verif is True:
-                        finish = True
+        for j in range(0, 4):
+            colonne = [grid[i][j] for i in range(0, 4)]
+            colonne.reverse()
+            colonne = collision(colonne)
+            colonne.reverse()
+            for i in range(0, 4):
+                grid[i][j] = colonne[i]
     if direction == "right":
         for i in range(0, 4):
-            while finish is not True:
-                for j in range(3, 0, -1):
-                    # On appelle la fonction collision avec comme case immobile
-                    # la case de la colonne de droite et la case mobile la case
-                    # de la colonne de gauche.
-                    # On va ensuite réinsérer le résultat de la collision
-                    # dans les cases.
-                    grid[i][j], grid[i][j-1], verif = collision(
-                        caseImmobile=grid[i][j],
-                        caseMobile=grid[i][j-1])
-                    if verif is True:
-                        finish = True
+            ligne = [grid[i][j] for j in range(0, 4)]
+            ligne = collision(ligne)
+            for j in range(0, 4):
+                grid[i][j] = ligne[j]
     if direction == "left":
         for i in range(0, 4):
-            while finish is not True:
-                for j in range(0, 3):
-                    # On appelle la fonction collision avec comme case immobile
-                    # la case de la colonne de gauche et la case mobile la case
-                    # de la colonne de droite.
-                    # On va ensuite réinsérer le résultat de la collision
-                    # dans les cases.
-                    grid[i][j], grid[i][j+1], verif = collision(
-                        caseImmobile=grid[i][j],
-                        caseMobile=grid[i][j+1])
-                    if verif is True:
-                        finish = True
+            ligne = [grid[i][j] for j in range(0, 4)]
+            ligne.reverse()
+            ligne = collision(ligne)
+            ligne.reverse()
+            for j in range(0, 4):
+                grid[i][j] = ligne[j]
     lose = loseDetect(grid, gridOld)
     matrice = grid
+    affichage()
+    nouvelCase()
     affichage()
     return lose
 
 
-def collision(caseImmobile, caseMobile):
+def collision(liste):
     """
-    Fonction qui fait la cohésion de deux case si possible.
+    Fonction qui permet de faire la collision des cases dans une ligne ou
+    une colonne.
     """
-    if caseImmobile == caseMobile:
-        caseImmobile += caseMobile
-        caseMobile = 0
-        finish = False
-    elif caseImmobile == 0 and caseMobile != 0:
-        caseImmobile = caseMobile
-        caseMobile = 0
-        finish = False
-    else:
-        finish = True
-    return caseImmobile, caseMobile, finish
+    print("Collision")
+    liste = [elem for elem in liste if elem != 0]
+    while len(liste) < 4:
+        liste.insert(0, 0)
+    for i in range(len(liste) - 1, 0, -1):
+        if liste[i] == liste[i - 1]:
+            liste[i] = liste[i] * 2
+            liste[i - 1] = 0
+    liste = [elem for elem in liste if elem != 0]
+    while len(liste) < 4:
+        liste.insert(0, 0)
+    return liste
+
 
 
 def save():
     """
     Fonction qui sauvegarde la grille dans un fichier texte.
     """
+    print("Save")
     global matrice
     fichier = open("save.txt", "w")
     compteur = 0
@@ -169,6 +183,7 @@ def charger():
     """
     Fonction qui charge la grille sauvegarder dans le fichier texte save.txt.
     """
+    print("Charger")
     global matrice
     matrice = []
     fichier = open("save.txt", "r")
@@ -188,8 +203,8 @@ def restart():
     """
     Fonction qui permet de recommencer le jeu.
     """
+    print("Restart")
     global matrice
-    matrice = datacreate()
     initialisation()
     affichage()
     return None
@@ -199,6 +214,7 @@ def score():
     """
     Fonction qui calcule le score du joueur.
     """
+    print("Score")
     global matrice
     score = 0
     for i in range(4):
@@ -206,10 +222,6 @@ def score():
             score += matrice[i][j]
     score = str(score)
     return score
-
-
-def affiche_score():
-    lScore.config(text="Score: " + score())
 
 
 ###############################################################################
@@ -242,6 +254,7 @@ def creer_case():
     """
     Fonction qui crée les cases de la grille.
     """
+    print("Creer_case")
     global guiCase, guiText
     guiCase, guiText = [], []
     for i in range(4):
@@ -263,17 +276,26 @@ def creer_case():
     return None
 
 
+def affiche_score():
+    """
+    Fonction qui actualise le score.
+    """
+    lScore.config(text="Score: " + score())
+    return None
+
+
 def affichage():
     """
     Fonction qui actualise les carrées en fonction des données stockées dans
     matrice
     """
+    print("Affichage")
     global guiCase, matrice, guiText
     compteurCase = 0
     for elem in matrice:
         for case in elem:
             compteur = 0
-            case2 = 0
+            case2 = case
             while case2 >= 2:
                 case2 = case2 // 2
                 compteur += 1
@@ -282,19 +304,19 @@ def affichage():
                     guiCase[compteurCase],
                     fill="white",
                 )
-                afffiche_nombre(compteurCase, "")
+                affiche_nombre(compteurCase, "")
             else:
                 cMatrice.itemconfig(
                     guiCase[compteurCase],
                     fill=couleur[compteur]
                 )
-                afffiche_nombre(compteurCase, str(case))
+                affiche_nombre(compteurCase, str(case))
             compteurCase += 1
     affiche_score()
     return None
 
 
-def afffiche_nombre(numerocase: int, valeurCase: str):
+def affiche_nombre(numerocase: int, valeurCase: str):
     """
     Fonction qui configure le label associé à la case
     avec le nombre stocké dans matrice.
@@ -333,6 +355,7 @@ def lancement():
     """
     Fonction qui lance le jeu.
     """
+    print("Lancement")
     initialisation()
     creer_case()
     affichage()
