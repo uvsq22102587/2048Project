@@ -15,7 +15,9 @@ matrice = [0*4]*4
 
 
 def datacreate():
-    """Fonction qui créée une matrice de 4x4."""
+    """
+    Fonction qui créée une matrice de 4x4.
+    """
     global data
     data = []
     for i in range(4):
@@ -136,7 +138,7 @@ def collision(caseImmobile, caseMobile):
         caseImmobile += caseMobile
         caseMobile = 0
         finish = False
-    elif caseImmobile == 0:
+    elif caseImmobile == 0 and caseMobile != 0:
         caseImmobile = caseMobile
         caseMobile = 0
         finish = False
