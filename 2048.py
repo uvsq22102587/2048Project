@@ -77,21 +77,17 @@ def compte0():
     return nombre0
 
 
-def loseDetect(gridNouveau: list, gridAncien: list):
+def loseDetect(grid):
     """
     Fonction qui permet de vérifier si le joueur a perdu, c'est à dire si il
-    n'y a plus de cases vides et que le mouvement ne change pas la grille.
-    C'est à dire que la grille avant le mouvement est la même
-    que la grille après le mouvement.
+    n'y a plus de cases vides.
+    Et que le mouvement est impossible.
     """
     print("Lose detect")
-    for elem in gridNouveau:
+    for elem in grid:
         if elem.count(0) != 0:
             return False
-    for i in range(4):
-        for j in range(4):
-            if gridAncien[i][j] != gridNouveau[i][j]:
-                return False
+    # Faire le code pour vérifier qu'il n'y a plus de mouvement possible.
     return True
 
 
@@ -102,40 +98,49 @@ def move(direction: str):
     """
     print("Move")
     global matrice
-    gridOld = matrice
-    grid = matrice
+    changement = False
+    grid = matrice.copy()
     if direction == "down":
         for j in range(0, 4):
-            colonne = [grid[i][j] for i in range(0, 4)]
+            colonne = [grid[i][j] for i in range(0, len(grid))]
             colonne = collision(colonne)
             for i in range(0, 4):
-                grid[i][j] = colonne[i]
+                if grid[i][j] != colonne[i]:
+                    grid[i][j] = colonne[i]
+                    changement = True
     if direction == "up":
         for j in range(0, 4):
-            colonne = [grid[i][j] for i in range(0, 4)]
+            colonne = [grid[i][j] for i in range(0, len(grid))]
             colonne.reverse()
             colonne = collision(colonne)
             colonne.reverse()
             for i in range(0, 4):
-                grid[i][j] = colonne[i]
+                if grid[i][j] != colonne[i]:
+                    grid[i][j] = colonne[i]
+                    changement = True
     if direction == "right":
         for i in range(0, 4):
-            ligne = [grid[i][j] for j in range(0, 4)]
+            ligne = [grid[i][j] for j in range(0, len(grid))]
             ligne = collision(ligne)
             for j in range(0, 4):
-                grid[i][j] = ligne[j]
+                if grid[i][j] != ligne[j]:
+                    grid[i][j] = ligne[j]
+                    changement = True
     if direction == "left":
         for i in range(0, 4):
-            ligne = [grid[i][j] for j in range(0, 4)]
+            ligne = [grid[i][j] for j in range(0, len(grid))]
             ligne.reverse()
             ligne = collision(ligne)
             ligne.reverse()
             for j in range(0, 4):
-                grid[i][j] = ligne[j]
-    lose = loseDetect(grid, gridOld)
-    matrice = grid
+                if grid[i][j] != ligne[j]:
+                    grid[i][j] = ligne[j]
+                    changement = True
+    matrice = grid.copy()
     affichage()
-    nouvelCase()
+    if changement:
+        nouvelCase()
+    lose = loseDetect(grid)
     affichage()
     return lose
 
@@ -146,6 +151,7 @@ def collision(liste):
     une colonne.
     """
     print("Collision")
+    lenListeini = len(liste)
     liste = [elem for elem in liste if elem != 0]
     while len(liste) < 4:
         liste.insert(0, 0)
@@ -154,10 +160,9 @@ def collision(liste):
             liste[i] = liste[i] * 2
             liste[i - 1] = 0
     liste = [elem for elem in liste if elem != 0]
-    while len(liste) < 4:
+    while len(liste) < lenListeini:
         liste.insert(0, 0)
     return liste
-
 
 
 def save():
@@ -217,8 +222,8 @@ def score():
     print("Score")
     global matrice
     score = 0
-    for i in range(4):
-        for j in range(4):
+    for i in range(len(matrice)):
+        for j in range(len(matrice[i])):
             score += matrice[i][j]
     score = str(score)
     return score
