@@ -4,12 +4,14 @@
 # Importation des libraires
 import tkinter as tk
 import random as rdm
+import copy as cp
 ###############################################################################
 # Définition des variables
 couleur = open("couleur.txt", "r")
 couleur = couleur.readline()
 couleur = couleur.split()
 score = 0
+stockageLscoreboardData = []
 ###############################################################################
 # Définition des fonctions gestion données
 
@@ -28,13 +30,15 @@ def initialisation():
     Fonction qui ajoute 2 ou 4 dans deux cases de la matrice au hasard
     au début du jeu.
     """
+    global stop
     print("Initialisation")
     global matrice
     matriceCreate()
-    nombre0 = compte0()
+    nombre0 = compte0(matrice)
     while nombre0 > 14:
         nouvelCase()
-        nombre0 = compte0()
+        nombre0 = compte0(matrice)
+    stop = False
     return None
 
 
@@ -44,7 +48,7 @@ def nouvelCase():
     """
     print("Nouvel case")
     global matrice
-    nombre0 = compte0()
+    nombre0 = compte0(matrice)
     if nombre0 == 0:
         return None
     elif nombre0 == 16:
@@ -63,12 +67,11 @@ def nouvelCase():
     return None
 
 
-def compte0():
+def compte0(matrice):
     """
     Fonction qui compte le nombre de cases vides dans la grille.
     """
     print("Compte 0")
-    global matrice
     nombre0 = 0
     for i in range(0, len(matrice)):
         for j in range(0, len(matrice[i])):
@@ -77,18 +80,38 @@ def compte0():
     return nombre0
 
 
-def loseDetect(grid):
+def statusGame(grid):
     """
-    Fonction qui permet de vérifier si le joueur a perdu, c'est à dire si il
-    n'y a plus de cases vides.
+    Fonction qui permet de vérifier si le joueur a perdu ou gagné,
+    c'est à dire si il n'y a plus de cases vides.
     Et que le mouvement est impossible.
+    Retourne vrai si le joueur a perdu, faux sinon.
     """
-    print("Lose detect")
+    print("status Game")
+    """
+    On vérifie d'abord si le joueur n'a pas gagné.
+    """
     for elem in grid:
-        if elem.count(0) != 0:
-            return False
-    # Faire le code pour vérifier qu'il n'y a plus de mouvement possible.
-    return True
+        if elem.count(2048) != 0:
+            return "win"
+    """
+    On vérifie d'abord si il y a des cases vides.
+    """
+    if compte0(grid) != 0:
+        return "continue"
+    """
+    On vérifie ensuite qu'il n'y a pas deux cases qui ont la même valeur
+    cote à cote. D'abord dans le sens horizontale, puis dans le sens vertical.
+    """
+    for i in range(0, len(grid)):
+        for j in range(1, len(grid[i])):
+            if grid[i][j - 1] == grid[i][j]:
+                return "continue"
+    for i in range(1, len(grid)):
+        for j in range(0, len(grid[i])):
+            if grid[i - 1][j] == grid[i][j]:
+                return "continue"
+    return "lose"
 
 
 def move(direction: str):
@@ -99,7 +122,7 @@ def move(direction: str):
     print("Move")
     global matrice
     changement = False
-    grid = matrice.copy()
+    grid = cp.deepcopy(matrice)
     if direction == "down":
         for j in range(0, 4):
             colonne = [grid[i][j] for i in range(0, len(grid))]
@@ -136,11 +159,11 @@ def move(direction: str):
                 if grid[i][j] != ligne[j]:
                     grid[i][j] = ligne[j]
                     changement = True
-    matrice = grid.copy()
+    matrice = cp.deepcopy(grid)
     affichage()
-    if changement:
+    lose = statusGame(matrice)
+    if changement and lose == "continue":
         nouvelCase()
-    lose = loseDetect(grid)
     affichage()
     return lose
 
@@ -201,6 +224,7 @@ def charger():
         matrice.append(ligne)
     fichier.close()
     affichage()
+    lEnd.grid_forget()
     return None
 
 
@@ -209,13 +233,27 @@ def restart():
     Fonction qui permet de recommencer le jeu.
     """
     print("Restart")
-    global matrice
+    global matrice, lEnd, stop
+    stop = False
+    lEnd.grid_forget()
     initialisation()
     affichage()
     return None
 
 
-def score():
+def resetScoreBoard():
+    """
+    Fonction qui permet de réinitialiser le scoreBoard.
+    """
+    print("Reset ScoreBoard")
+    fic = open("score.txt", "w")
+    fic.write("")
+    fic.close()
+    afficheScoreBoard()
+    return None
+
+
+def CalculeScore():
     """
     Fonction qui calcule le score du joueur.
     """
@@ -235,22 +273,28 @@ racine = tk.Tk()
 racine.title("2048")
 
 cMatrice = tk.Canvas(racine, width=500, height=500)
-cMatrice.grid(row=1, column=1, columnspan=4)
+cMatrice.grid(row=1, column=1, rowspan=10, columnspan=4)
 
-lTitreJeu = tk.Label(text="2048", font=("Arial", 21))
-lTitreJeu.grid(row=0, column=1)
+lEnd = tk.Label(text="Ceci est un secret", font=("Arial", 28))
 
 lScore = tk.Label(text="Score : 0", font=("Arial", 15))
 lScore.grid(row=0, column=2)
 
+lScoreBoard = tk.Label(text="Scoreboard", font=("Arial", 15))
+
+lScoreBoardData = tk.Label(text="", font=("Arial", 15))
+
 bRestart = tk.Button(text="Recommencer", command=restart)
-bRestart.grid(column=0, row=1)
+bRestart.grid(column=0, row=2)
 
 bSave = tk.Button(text="Sauvegarder", command=save)
-bSave.grid(column=0, row=2)
+bSave.grid(column=0, row=3)
 
 bCharger = tk.Button(text="Charger Config", command=charger)
-bCharger.grid(column=0, row=3)
+bCharger.grid(column=0, row=4)
+
+bResetScoreboard = tk.Button(text="Reset Scoreboard", command=resetScoreBoard)
+bResetScoreboard.grid(column=0, row=5)
 
 
 ###############################################################################
@@ -285,7 +329,37 @@ def affiche_score():
     """
     Fonction qui actualise le score.
     """
-    lScore.config(text="Score: " + score())
+    lScore.config(text="Score: " + CalculeScore())
+    return None
+
+
+def afficheScoreBoard():
+    """
+    Fonction qui affiche le score board.
+    """
+    global stockageLscoreboardData
+    for elem in stockageLscoreboardData:
+        elem.grid_forget()
+    stockageLscoreboardData = []
+    print("ScoreBoard")
+    lScoreBoard.grid(row=0, column=5)
+    fScore = open("score.txt", "r")
+    lScore = fScore.read()
+    lScore = lScore.split("\n")
+    while lScore.count('') > 0:
+        lScore.remove('')
+    for i in range(0, len(lScore)):
+        lScore[i] = int(lScore[i])
+    fScore.close()
+    lScore.sort(reverse=True)
+    print(lScore)
+    lScore = lScore[:10]
+    for i in range(0, len(lScore)):
+        lScoreBoardData = tk.Label(
+            text=str(i+1) + " : " + str(lScore[i])
+            )
+        lScoreBoardData.grid(row=i+1, column=5)
+        stockageLscoreboardData.append(lScoreBoardData)
     return None
 
 
@@ -317,7 +391,6 @@ def affichage():
                 )
                 affiche_nombre(compteurCase, str(case))
             compteurCase += 1
-    affiche_score()
     return None
 
 
@@ -331,20 +404,83 @@ def affiche_nombre(numerocase: int, valeurCase: str):
     return None
 
 
+def endGame(condition: bool):
+    """
+    Fonction qui stop le jeu si le joueur perd ou gagne.
+    """
+    print("End")
+    global lEnd, stop
+    stop = True
+    if not condition:
+        lEnd.config(text="Perdu !")
+    else:
+        lEnd.config(text="Gagné !")
+    lEnd.grid(row=1, column=0)
+    score = open("score.txt", "a")
+    score.write(CalculeScore() + "\n")
+    score.close()
+    affiche_score()
+    afficheScoreBoard()
+
+
 def haut(event):
-    move("up")
+    """
+    Fonction qui agit sur la matrice si le jeu n'est pas stop.
+    """
+    global stop
+    if not stop:
+        status = move("up")
+        if status == "lose":
+            print("You lose")
+            endGame(False)
+        elif status == "win":
+            print("You win")
+            endGame(True)
 
 
 def bas(event):
-    move("down")
+    """
+    Fonction qui agit sur la matrice si le jeu n'est pas stop.
+    """
+    global stop
+    if not stop:
+        status = move("down")
+        if status == "lose":
+            print("You lose")
+            endGame(False)
+        elif status == "win":
+            print("You win")
+            endGame(True)
 
 
 def gauche(event):
-    move("left")
+    """
+    Fonction qui agit sur la matrice si le jeu n'est pas stop.
+    """
+    global stop
+    if not stop:
+        status = move("left")
+        if status == "lose":
+            print("You lose")
+            endGame(False)
+        elif status == "win":
+            print("You win")
+            endGame(True)
 
 
 def droite(event):
-    move("right")
+    """
+    Fonction qui agit sur la matrice si le jeu n'est pas stop.
+    """
+    global stop
+    if not stop:
+        status = move("right")
+        if status == "lose":
+            print("You lose")
+            endGame(False)
+        elif status == "win":
+            print("You win")
+            endGame(True)
 
 
 racine.bind("<KeyPress-Up>", haut)
@@ -364,6 +500,7 @@ def lancement():
     initialisation()
     creer_case()
     affichage()
+    afficheScoreBoard()
     return None
 
 
