@@ -35,6 +35,7 @@ def fourDmode():
     Ou de le repasser en 2D.
     """
     global fourD, listeLigneNoire, listeMatrice
+    lEnd.grid_forget()
     if fourD:
         racine.title("2048 - 2D")
         fourD = False
@@ -49,8 +50,8 @@ def fourDmode():
         b4Dmode.grid_forget()
         b2Dmode.grid(row=6, column=0)
         listeLigneNoire = []
-        ligne1 = cMatrice.create_line(0, 202, 402, 202, fill="purple", width=3)
-        ligne2 = cMatrice.create_line(202, 0, 202, 402, fill="purple", width=3)
+        ligne1 = cMatrice.create_line(0, 202, 402, 202, fill="black", width=3)
+        ligne2 = cMatrice.create_line(202, 0, 202, 402, fill="black", width=3)
         listeLigneNoire = [ligne1, ligne2]
     listeMatrice = initialisation()
     affichage()
@@ -63,7 +64,6 @@ def initialisation():
     au début du jeu.
     """
     global stop, fourD, listeMatrice
-    print("Initialisation")
     if fourD:
         matrice = matriceCreate("4D")
         nombre0Necessaire = 3
@@ -116,32 +116,32 @@ def compte0(matrice):
     return nombre0
 
 
-def statusGame(grid):
+def statusGame(listeDeGrilles):
     """
     Fonction qui permet de vérifier si le joueur a perdu ou gagné,
     c'est à dire si il n'y a plus de cases vides.
     Et que le mouvement est impossible.
     Retourne le status de la partie en str.
     """
-    print("status Game")
     # On vérifie d'abord si le joueur n'a pas gagné.
-    for elem in grid:
-        if elem.count(2048) != 0:
-            return "win"
+    for grid in listeDeGrilles:
+        for elem in grid:
+            if elem.count(2048) != 0:
+                return "win"
     # On vérifie d'abord si il y a des cases vides.
-    if compte0(grid) != 0:
-        return "continue"
+        if compte0(grid) != 0:
+            return "continue"
     # On vérifie ensuite qu'il n'y a pas deux cases qui ont la même valeur
     # côte à côte. D'abord dans le sens horizontale, puis dans le sens
     # vertical.
-    for i in range(0, len(grid)):
-        for j in range(1, len(grid[i])):
-            if grid[i][j - 1] == grid[i][j]:
-                return "continue"
-    for i in range(1, len(grid)):
-        for j in range(0, len(grid[i])):
-            if grid[i - 1][j] == grid[i][j]:
-                return "continue"
+        for i in range(0, len(grid)):
+            for j in range(1, len(grid[i])):
+                if grid[i][j - 1] == grid[i][j]:
+                    return "continue"
+        for i in range(1, len(grid)):
+            for j in range(0, len(grid[i])):
+                if grid[i - 1][j] == grid[i][j]:
+                    return "continue"
     return "lose"
 
 
@@ -150,9 +150,7 @@ def move(matrice: list, direction: str):
     Fonction qui fait le déplacement de la grille, elle sauvegarde d'abord
     la configuration précédente pour pouvoir vérifier si le joueur a perdu.
     """
-    print("Move")
     changement = False
-    print(matrice, "matrice avant move")
     grid = cp.deepcopy(matrice)
     if direction == "down":
         for j in range(0, len(grid)):
@@ -191,11 +189,7 @@ def move(matrice: list, direction: str):
                     grid[i][j] = ligne[j]
                     changement = True
     matrice = cp.deepcopy(grid)
-    lose = statusGame(matrice)
-    if changement and lose == "continue":
-        nouvelCase(matrice)
-    print(listeMatrice)
-    return lose, matrice
+    return changement, matrice
 
 
 def collision(liste):
@@ -221,7 +215,6 @@ def save():
     """
     Fonction qui sauvegarde la grille dans un fichier texte.
     """
-    print("Save")
     global listeMatrice
     fichier = open("save.txt", "w")
     compteur = 0
@@ -241,7 +234,6 @@ def charger():
     """
     Fonction qui charge la grille sauvegarder dans le fichier texte save.txt.
     """
-    print("Charger")
     global listeMatrice
     listeMatrice = []
     fichier = open("save.txt", "r")
@@ -263,7 +255,6 @@ def restart():
     """
     Fonction qui permet de recommencer le jeu.
     """
-    print("Restart")
     global listeMatrice, lEnd, stop
     stop = False
     lEnd.grid_forget()
@@ -276,7 +267,6 @@ def resetScoreBoard():
     """
     Fonction qui permet de réinitialiser le scoreBoard.
     """
-    print("Reset ScoreBoard")
     fic = open("score.txt", "w")
     fic.write("")
     fic.close()
@@ -288,7 +278,6 @@ def CalculeScore():
     """
     Fonction qui calcule le score du joueur.
     """
-    print("Score")
     global listeMatrice
     score = 0
     for matrice in listeMatrice:
@@ -341,7 +330,6 @@ def creer_case():
     Fonction qui crée les cases de la grille. C'est en
     quelque sorte l'initialisation de la partie graphique.
     """
-    print("Creer_case")
     global guiCase, guiText
     guiCase, guiText = [], []
     for i in range(4):
@@ -379,7 +367,6 @@ def afficheScoreBoard():
     for elem in stockageLscoreboardData:
         elem.grid_forget()
     stockageLscoreboardData = []
-    print("ScoreBoard")
     lScoreBoard.grid(row=0, column=5)
     fScore = open("score.txt", "r")
     lScore = fScore.read()
@@ -390,7 +377,7 @@ def afficheScoreBoard():
         lScore[i] = int(lScore[i])
     fScore.close()
     lScore.sort(reverse=True)
-    lScore = lScore[:10]
+    lScore = lScore[:5]
     for i in range(0, len(lScore)):
         lScoreBoardData = tk.Label(
             text=str(i+1) + " : " + str(lScore[i])
@@ -449,7 +436,6 @@ def endGame(condition: bool):
     """
     Fonction qui stop le jeu si le joueur perd ou gagne.
     """
-    print("End")
     global lEnd, stop
     stop = True
     if not condition:
@@ -469,16 +455,17 @@ def haut(event):
     Fonction qui agit sur la matrice si le jeu n'est pas stop.
     """
     global stop, listeMatrice
+    if stop:
+        return None
     if not stop:
         for i in range(0, len(listeMatrice)):
             status, listeMatrice[i] = move(listeMatrice[i], "up")
-            if status == "lose":
-                print("You lose")
-                endGame(False)
-            elif status == "win":
-                print("You win")
-                endGame(True)
+            if status:
+                listeMatrice[i] = nouvelCase(listeMatrice[i])
         affichage()
+    if statusGame(listeMatrice) == "lose":
+        endGame(False)
+        print("You lose")
     return None
 
 
@@ -487,16 +474,17 @@ def bas(event):
     Fonction qui agit sur la matrice si le jeu n'est pas stop.
     """
     global stop, listeMatrice
+    if stop:
+        return None
     if not stop:
         for i in range(0, len(listeMatrice)):
             status, listeMatrice[i] = move(listeMatrice[i], "down")
-            if status == "lose":
-                print("You lose")
-                endGame(False)
-            elif status == "win":
-                print("You win")
-                endGame(True)
+            if status:
+                listeMatrice[i] = nouvelCase(listeMatrice[i])
         affichage()
+    if statusGame(listeMatrice) == "lose":
+        print("You lose")
+        endGame(False)
     return None
 
 
@@ -505,16 +493,17 @@ def gauche(event):
     Fonction qui agit sur la matrice si le jeu n'est pas stop.
     """
     global stop, listeMatrice
+    if stop:
+        return None
     if not stop:
         for i in range(0, len(listeMatrice)):
             status, listeMatrice[i] = move(listeMatrice[i], "left")
-            if status == "lose":
-                print("You lose")
-                endGame(False)
-            elif status == "win":
-                print("You win")
-                endGame(True)
+            if status:
+                listeMatrice[i] = nouvelCase(listeMatrice[i])
         affichage()
+    if statusGame(listeMatrice) == "lose":
+        print("You lose")
+        endGame(False)
     return None
 
 
@@ -523,16 +512,17 @@ def droite(event):
     Fonction qui agit sur la matrice si le jeu n'est pas stop.
     """
     global stop, listeMatrice
+    if stop:
+        return None
     if not stop:
         for i in range(0, len(listeMatrice)):
             status, listeMatrice[i] = move(listeMatrice[i], "right")
-            if status == "lose":
-                print("You lose")
-                endGame(False)
-            elif status == "win":
-                print("You win")
-                endGame(True)
+            if status:
+                listeMatrice[i] = nouvelCase(listeMatrice[i])
         affichage()
+    if statusGame(listeMatrice) == "lose":
+        print("You lose")
+        endGame(False)
     return None
 
 
@@ -550,7 +540,6 @@ def lancement():
     Fonction qui lance le jeu.
     """
     global listeMatrice
-    print("Lancement")
     listeMatrice = initialisation()
     creer_case()
     affichage()
