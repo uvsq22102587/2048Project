@@ -12,6 +12,7 @@ couleur = couleur.readline()
 couleur = couleur.split()
 score = 0
 fourD = False
+listeLigneNoire = []
 stockageLscoreboardData = []
 ###############################################################################
 # Définition des fonctions gestion données
@@ -31,19 +32,28 @@ def matriceCreate(mode="2D"):
 def fourDmode():
     """
     Fonction qui permet de changer le mode de jeu en 4D.
-    Ou de le rapsser en 2D.
+    Ou de le repasser en 2D.
     """
-    global fourD
+    global fourD, listeLigneNoire, listeMatrice
     if fourD:
         racine.title("2048 - 2D")
         fourD = False
         b2Dmode.grid_forget()
         b4Dmode.grid(row=6, column=0)
+        for elem in listeLigneNoire:
+            cMatrice.delete(elem)
+        listeLigneNoire = []
     else:
         racine.title("2048 - 4D")
         fourD = True
         b4Dmode.grid_forget()
         b2Dmode.grid(row=6, column=0)
+        listeLigneNoire = []
+        ligne1 = cMatrice.create_line(0, 202, 402, 202, fill="purple", width=3)
+        ligne2 = cMatrice.create_line(202, 0, 202, 402, fill="purple", width=3)
+        listeLigneNoire = [ligne1, ligne2]
+    listeMatrice = initialisation()
+    affichage()
     return None
 
 
@@ -52,11 +62,11 @@ def initialisation():
     Fonction qui ajoute 2 ou 4 dans deux cases de la matrice au hasard
     au début du jeu.
     """
-    global stop, fourD
+    global stop, fourD, listeMatrice
     print("Initialisation")
     if fourD:
         matrice = matriceCreate("4D")
-        nombre0Necessaire = 2
+        nombre0Necessaire = 3
     else:
         nombre0Necessaire = 14
         matrice = matriceCreate()
@@ -66,6 +76,7 @@ def initialisation():
             elem = nouvelCase(elem)
             nombre0 = compte0(elem)
     stop = False
+    listeMatrice = matrice
     return matrice
 
 
@@ -74,21 +85,21 @@ def nouvelCase(matrice):
     Fonction qui ajoute une case de valeur 2 ou 4 au hasard dans une case vide
     de la grille.
     """
-    print("Nouvel case")
+    global fourD
     nombre0 = compte0(matrice)
-    if nombre0 == 0:
-        return None
-    elif nombre0 == 16:
-        x = rdm.randint(0, 3)
-        y = rdm.randint(0, 3)
-        matrice[y][x] = rdm.choice([2, 2, 2, 2, 2, 2, 2, 2, 2, 4])
+    if fourD:
+        nbrCase = 2
     else:
-        x = rdm.randint(0, 3)
-        y = rdm.randint(0, 3)
+        nbrCase = 4
+    if nombre0 == 0:
+        return matrice
+    else:
+        x = rdm.randint(0, nbrCase - 1)
+        y = rdm.randint(0, nbrCase - 1)
         if matrice[y][x] != 0:
             while matrice[y][x] != 0:
-                x = rdm.randint(0, 3)
-                y = rdm.randint(0, 3)
+                x = rdm.randint(0, nbrCase - 1)
+                y = rdm.randint(0, nbrCase - 1)
         matrice[y][x] = rdm.choice([2, 2, 2, 2, 2, 2, 2, 2, 2, 4])
     return matrice
 
@@ -97,7 +108,6 @@ def compte0(matrice):
     """
     Fonction qui compte le nombre de cases vides dans une grille.
     """
-    print("Compte 0")
     nombre0 = 0
     for i in range(0, len(matrice)):
         for j in range(0, len(matrice[i])):
@@ -142,6 +152,7 @@ def move(matrice: list, direction: str):
     """
     print("Move")
     changement = False
+    print(matrice, "matrice avant move")
     grid = cp.deepcopy(matrice)
     if direction == "down":
         for j in range(0, len(grid)):
@@ -183,6 +194,7 @@ def move(matrice: list, direction: str):
     lose = statusGame(matrice)
     if changement and lose == "continue":
         nouvelCase(matrice)
+    print(listeMatrice)
     return lose, matrice
 
 
@@ -191,7 +203,6 @@ def collision(liste):
     Fonction qui permet de faire la collision des cases dans une ligne ou
     une colonne.
     """
-    print("Collision")
     lenListeini = len(liste)
     liste = [elem for elem in liste if elem != 0]
     while len(liste) < 4:
@@ -394,9 +405,12 @@ def affichage():
     Fonction qui actualise les carrées en fonction des données stockées dans
     matrice
     """
-    print("Affichage")
-    global guiCase, matrice, guiText, listeMatrice
-    compteurCase = 0
+    global guiCase, guiText, listeMatrice, fourD
+    if fourD:
+        compteurCase = [0, 1, 4, 5, 2, 3, 6, 7, 8, 9, 12, 13, 10, 11, 14, 15]
+    else:
+        compteurCase = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    indexCompteurCase = 0
     for element in listeMatrice:
         for elem in element:
             for case in elem:
@@ -407,17 +421,17 @@ def affichage():
                     compteur += 1
                 if case == 0:
                     cMatrice.itemconfig(
-                        guiCase[compteurCase],
+                        guiCase[compteurCase[indexCompteurCase]],
                         fill="white",
                     )
-                    affiche_nombre(compteurCase, "")
+                    affiche_nombre(compteurCase[indexCompteurCase], "")
                 else:
                     cMatrice.itemconfig(
-                        guiCase[compteurCase],
+                        guiCase[compteurCase[indexCompteurCase]],
                         fill=couleur[compteur]
                     )
-                    affiche_nombre(compteurCase, str(case))
-                compteurCase += 1
+                    affiche_nombre(compteurCase[indexCompteurCase], str(case))
+                indexCompteurCase += 1
     return None
 
 
