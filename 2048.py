@@ -2,6 +2,7 @@
 # Etudiants: JACQUIN Valentin, VINCENS Arthur, PREHAUD Benjamin
 ###############################################################################
 # Importation des libraires
+from logging import root
 import tkinter as tk
 import random as rdm
 import copy as cp
@@ -18,9 +19,23 @@ stockageLscoreboardData = []
 # Définition des fonctions gestion données
 
 
+def lancement(event):
+    """
+    Fonction qui lance le jeu.
+    """
+    global listeMatrice
+    # Grid des boutons
+    listeMatrice = initialisation()
+    creer_case()
+    affichage()
+    afficheScoreBoard()
+    cMatrice.unbind("<Button-1>")
+    return None
+
+
 def matriceCreate(mode="2D"):
     """
-    Fonction qui crée la matrice de jeu de 4x4.
+    Fonction qui crée la matrice de jeu de 4x4 ou 4x2x2 si mode 4D.
     """
     if mode == "4D":
         matrice = [[[0, 0], [0, 0]] for i in range(0, 4)]
@@ -60,8 +75,8 @@ def fourDmode():
 
 def initialisation():
     """"
-    Fonction qui ajoute 2 ou 4 dans deux cases de la matrice au hasard
-    au début du jeu.
+    Fonction qui ajoute 2 ou 4 dans deux cases de la grille si mode 2D.
+    Sinon une case de 2 ou 4 dans une case par grille.
     """
     global stop, fourD, listeMatrice
     if fourD:
@@ -122,6 +137,8 @@ def statusGame(listeDeGrilles):
     c'est à dire si il n'y a plus de cases vides.
     Et que le mouvement est impossible.
     Retourne le status de la partie en str.
+    (Pour le mode 4D, c'est lorsque toutes les grilles
+    sont perdues que la partie est perdue.)
     """
     # On vérifie d'abord si le joueur n'a pas gagné.
     for grid in listeDeGrilles:
@@ -148,7 +165,8 @@ def statusGame(listeDeGrilles):
 def move(matrice: list, direction: str):
     """
     Fonction qui fait le déplacement de la grille, elle sauvegarde d'abord
-    la configuration précédente pour pouvoir vérifier si le joueur a perdu.
+    la configuration précédente pour pouvoir vérifier si le déplacement
+    a eu une conséquence sur la grille.
     """
     changement = False
     grid = cp.deepcopy(matrice)
@@ -215,7 +233,8 @@ def save():
     """
     Fonction qui sauvegarde la grille dans un fichier texte.
     """
-    global listeMatrice
+    global listeMatrice, stop
+    assert stop is not True, "La partie est terminée."
     fichier = open("save.txt", "w")
     compteur = 0
     for matrice in listeMatrice:
@@ -232,7 +251,7 @@ def save():
 
 def charger():
     """
-    Fonction qui charge la grille sauvegarder dans le fichier texte save.txt.
+    Fonction qui charge la grille sauvegardée dans le fichier texte save.txt.
     """
     global listeMatrice
     listeMatrice = []
@@ -393,6 +412,9 @@ def affichage():
     matrice
     """
     global guiCase, guiText, listeMatrice, fourD
+    # On a besoin de gérer le choix des carré lorsque le jeu est
+    # en mode 4D ou non, c'est pour cela qu'on utilise la variable compteurCase
+    # et la variable indexCompteurCase
     if fourD:
         compteurCase = [0, 1, 4, 5, 2, 3, 6, 7, 8, 9, 12, 13, 10, 11, 14, 15]
     else:
@@ -530,24 +552,9 @@ racine.bind("<KeyPress-Up>", haut)
 racine.bind("<KeyPress-Down>", bas)
 racine.bind("<KeyPress-Left>", gauche)
 racine.bind("<KeyPress-Right>", droite)
+cMatrice.bind("<Button-1>", lancement)
 
-###############################################################################
-# Initialisation du jeu
-
-
-def lancement():
-    """
-    Fonction qui lance le jeu.
-    """
-    global listeMatrice
-    listeMatrice = initialisation()
-    creer_case()
-    affichage()
-    afficheScoreBoard()
-    return None
-
-
-###############################################################################
+#########################################################################
 # Lancement du jeu
-lancement()
+creer_case()
 racine.mainloop()
