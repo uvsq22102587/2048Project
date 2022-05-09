@@ -33,7 +33,7 @@ def lancement(event):
     return None
 
 
-def matriceCreate(mode="2D"):
+def matriceCreate(mode="1D"):
     """
     Fonction qui crée la matrice de jeu de 4x4 ou 4x2x2 si mode 4D.
     """
@@ -47,14 +47,14 @@ def matriceCreate(mode="2D"):
 def fourDmode():
     """
     Fonction qui permet de changer le mode de jeu en 4D.
-    Ou de le repasser en 2D.
+    Ou de le repasser en 1D.
     """
     global fourD, listeLigneNoire, listeMatrice
     lEnd.grid_forget()
     if fourD:
-        racine.title("2048 - 2D")
+        racine.title("2048 - 1D")
         fourD = False
-        b2Dmode.grid_forget()
+        b1Dmode.grid_forget()
         b4Dmode.grid(row=6, column=0)
         for elem in listeLigneNoire:
             cMatrice.delete(elem)
@@ -63,7 +63,7 @@ def fourDmode():
         racine.title("2048 - 4D")
         fourD = True
         b4Dmode.grid_forget()
-        b2Dmode.grid(row=6, column=0)
+        b1Dmode.grid(row=6, column=0)
         listeLigneNoire = []
         ligne1 = cMatrice.create_line(0, 202, 402, 202, fill="black", width=3)
         ligne2 = cMatrice.create_line(202, 0, 202, 402, fill="black", width=3)
@@ -75,7 +75,7 @@ def fourDmode():
 
 def initialisation():
     """"
-    Fonction qui ajoute 2 ou 4 dans deux cases de la grille si mode 2D.
+    Fonction qui ajoute 2 ou 4 dans deux cases de la grille si mode 1D.
     Sinon une case de 2 ou 4 dans une case par grille.
     """
     global stop, fourD, listeMatrice
@@ -310,7 +310,7 @@ def CalculeScore():
 ###############################################################################
 # Création de l'interface graphique
 racine = tk.Tk()
-racine.title("2048- 2D")
+racine.title("2048- 1D")
 
 cMatrice = tk.Canvas(racine, width=500, height=500)
 cMatrice.grid(row=1, column=1, rowspan=10, columnspan=4)
@@ -339,7 +339,7 @@ bResetScoreboard.grid(column=0, row=5)
 b4Dmode = tk.Button(text="4D Mode", command=fourDmode)
 b4Dmode.grid(column=0, row=6)
 
-b2Dmode = tk.Button(text="2D Mode", command=fourDmode)
+b1Dmode = tk.Button(text="1D Mode", command=fourDmode)
 
 
 ###############################################################################
