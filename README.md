@@ -23,3 +23,6 @@ Tant que le fichier "score.txt" est vide, ce panneau des score ne s'affichera pa
 Un bouton est dédié à la rénitialisation de ce tableau des score.
 
 Le bouton "Recommencer" permet naturellement de recommencer la partie en cours, dans ce cas le score actuel ne sera pas sauvegardé dans le tableau des scores.
+
+Les couleurs du jeux sont stockées dans un fichier texte appelé "couleur.txt". Ces couleurs peuvent donc être changé assez facilement, il suffit de mettre la couleur voulu en héxadécimal. 
+La première valeur code pour 2, la deuxième pour 4 et ainsi de suite jusqu'à 2048.
