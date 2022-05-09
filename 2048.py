@@ -558,6 +558,10 @@ racine.bind("<KeyPress-Up>", haut)
 racine.bind("<KeyPress-Down>", bas)
 racine.bind("<KeyPress-Left>", gauche)
 racine.bind("<KeyPress-Right>", droite)
+racine.bind("<KeyPress-z>", haut)
+racine.bind("<KeyPress-s>", bas)
+racine.bind("<KeyPress-q>", gauche)
+racine.bind("<KeyPress-d>", droite)
 cMatrice.bind("<Button-1>", lancement)
 
 #########################################################################
