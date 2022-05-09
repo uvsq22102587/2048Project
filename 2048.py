@@ -30,6 +30,7 @@ def lancement(event):
     afficheScoreBoard()
     cMatrice.unbind("<Button-1>")
     bRestart.grid(column=0, row=2)
+    cMatrice.delete(lCliquer)
     return None
 
 
@@ -276,6 +277,7 @@ def restart():
     """
     global listeMatrice, lEnd, stop
     stop = False
+    cMatrice.delete(lCliquer)
     lEnd.grid_forget()
     listeMatrice = initialisation()
     affichage()
@@ -561,4 +563,10 @@ cMatrice.bind("<Button-1>", lancement)
 #########################################################################
 # Lancement du jeu
 creer_case()
+
+lCliquer = cMatrice.create_text(
+    200, 180,
+    text="Cliquez sur la grille pour commencer", font=("Arial", 14)
+    )
+
 racine.mainloop()
