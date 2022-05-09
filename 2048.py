@@ -490,6 +490,9 @@ def haut(event):
     if statusGame(listeMatrice) == "lose":
         endGame(False)
         print("You lose")
+    elif statusGame(listeMatrice) == "win":
+        endGame(True)
+        print("You win")
     affiche_score()
     return None
 
@@ -510,6 +513,9 @@ def bas(event):
     if statusGame(listeMatrice) == "lose":
         print("You lose")
         endGame(False)
+    elif statusGame(listeMatrice) == "win":
+        endGame(True)
+        print("You win")
     affiche_score()
     return None
 
@@ -530,6 +536,9 @@ def gauche(event):
     if statusGame(listeMatrice) == "lose":
         print("You lose")
         endGame(False)
+    elif statusGame(listeMatrice) == "win":
+        endGame(True)
+        print("You win")
     affiche_score()
     return None
 
@@ -550,6 +559,9 @@ def droite(event):
     if statusGame(listeMatrice) == "lose":
         print("You lose")
         endGame(False)
+    elif statusGame(listeMatrice) == "win":
+        endGame(True)
+        print("You win")
     affiche_score()
     return None
 
