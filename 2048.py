@@ -2,7 +2,6 @@
 # Etudiants: JACQUIN Valentin, VINCENS Arthur, PREHAUD Benjamin
 ###############################################################################
 # Importation des libraires
-from logging import root
 import tkinter as tk
 import random as rdm
 import copy as cp
@@ -30,6 +29,7 @@ def lancement(event):
     affichage()
     afficheScoreBoard()
     cMatrice.unbind("<Button-1>")
+    bRestart.grid(column=0, row=2)
     return None
 
 
@@ -325,7 +325,6 @@ lScoreBoard = tk.Label(text="Scoreboard", font=("Arial", 15))
 lScoreBoardData = tk.Label(text="", font=("Arial", 15))
 
 bRestart = tk.Button(text="Recommencer", command=restart)
-bRestart.grid(column=0, row=2)
 
 bSave = tk.Button(text="Sauvegarder", command=save)
 bSave.grid(column=0, row=3)
@@ -386,7 +385,6 @@ def afficheScoreBoard():
     for elem in stockageLscoreboardData:
         elem.grid_forget()
     stockageLscoreboardData = []
-    lScoreBoard.grid(row=0, column=5)
     fScore = open("score.txt", "r")
     lScore = fScore.read()
     lScore = lScore.split("\n")
@@ -397,6 +395,8 @@ def afficheScoreBoard():
     fScore.close()
     lScore.sort(reverse=True)
     lScore = lScore[:5]
+    if lScore != []:
+        lScoreBoard.grid(row=0, column=5)
     for i in range(0, len(lScore)):
         lScoreBoardData = tk.Label(
             text=str(i+1) + " : " + str(lScore[i])
@@ -488,6 +488,7 @@ def haut(event):
     if statusGame(listeMatrice) == "lose":
         endGame(False)
         print("You lose")
+    affiche_score()
     return None
 
 
@@ -507,6 +508,7 @@ def bas(event):
     if statusGame(listeMatrice) == "lose":
         print("You lose")
         endGame(False)
+    affiche_score()
     return None
 
 
@@ -526,6 +528,7 @@ def gauche(event):
     if statusGame(listeMatrice) == "lose":
         print("You lose")
         endGame(False)
+    affiche_score()
     return None
 
 
@@ -545,6 +548,7 @@ def droite(event):
     if statusGame(listeMatrice) == "lose":
         print("You lose")
         endGame(False)
+    affiche_score()
     return None
 
 
